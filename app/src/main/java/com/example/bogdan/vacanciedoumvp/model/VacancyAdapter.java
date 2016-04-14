@@ -19,9 +19,11 @@ import java.util.List;
 public class VacancyAdapter extends RecyclerView.Adapter<VacancyAdapter.Holder> {
     private final LayoutInflater mLayoutInflater;
     private List<Vacancy> mVacancies;
+    private OnVacancyClickListener mListener;
 
-    public VacancyAdapter(LayoutInflater layoutInflater) {
+    public VacancyAdapter(LayoutInflater layoutInflater, OnVacancyClickListener listener) {
         mLayoutInflater = layoutInflater;
+        mListener = listener;
         mVacancies = new ArrayList<>();
     }
 
@@ -52,7 +54,11 @@ public class VacancyAdapter extends RecyclerView.Adapter<VacancyAdapter.Holder> 
         notifyDataSetChanged();
     }
 
-    public class Holder extends RecyclerView.ViewHolder {
+    public Vacancy getSelectedVacancy(int position) {
+        return mVacancies.get(position);
+    }
+
+    public class Holder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mTitle;
         private TextView mCity;
         private TextView mSalary;
@@ -66,6 +72,17 @@ public class VacancyAdapter extends RecyclerView.Adapter<VacancyAdapter.Holder> 
             mCity = (TextView) itemView.findViewById(R.id.city);
             mSalary = (TextView) itemView.findViewById(R.id.salary);
             mDescription = (TextView) itemView.findViewById(R.id.description);
+
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            mListener.onCLick(getLayoutPosition());
+        }
+    }
+
+    public interface OnVacancyClickListener {
+        void onCLick(int position);
     }
 }

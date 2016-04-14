@@ -1,6 +1,8 @@
 package com.example.bogdan.vacanciedoumvp.view;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -29,7 +31,7 @@ import rx.Observable;
  * @version 1
  * @date 13.04.2016
  */
-public class MainActivity extends AppCompatActivity implements IVacancyView {
+public class MainActivity extends AppCompatActivity implements IVacancyView, VacancyAdapter.OnVacancyClickListener {
     @Inject
     VacancyService mService;
 
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements IVacancyView {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
-        resolveDependecy();
+        resolveDependency();
 
         ButterKnife.bind(MainActivity.this);
 
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements IVacancyView {
         mVacancyPresenter.onCreate();
     }
 
-    private void resolveDependecy() {
+    private void resolveDependency() {
         ((VacancyApplication) getApplication())
                 .getApiComponent()
                 .inject(MainActivity.this);
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements IVacancyView {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new VacancyAdapter(getLayoutInflater());
+        mAdapter = new VacancyAdapter(getLayoutInflater(), this);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -102,5 +104,12 @@ public class MainActivity extends AppCompatActivity implements IVacancyView {
     @Override
     public Observable<List<Vacancy>> getVacancies() {
         return mService.getVacancies("epam-systems");
+    }
+
+    @Override
+    public void onCLick(int position) {
+        Vacancy selectedVacancy = mAdapter.getSelectedVacancy(position);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(selectedVacancy.getLink()));
+        startActivity(intent);
     }
 }
